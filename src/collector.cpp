@@ -9,6 +9,7 @@
 #include <fstream>
 #include "collector.h"
 #include <ctime>
+#include <time.h>
 
 class Collector : public play_callback_static {
 
@@ -23,18 +24,27 @@ public:
 		std::string st_str;
 		std::string lt_str;
 
-		time_t rawtime;
 		struct tm * s_timeinfo;
 		struct tm * l_timeinfo;
 
 		char s_buffer[80];
 		char l_buffer[80];
 
-		time(&rawtime);
-		l_timeinfo = localtime(&rawtime);
+		time_t srawtime;
+		time(&srawtime);
+		
+		s_timeinfo = gmtime(&srawtime);
+		
+		strftime(s_buffer, sizeof(s_buffer), "%d-%m-%Y %H:%M:%S", s_timeinfo);
+		st_str = *s_buffer;
 
-		//strftime(buffer, sizeof(buffer), "%d-%m-%Y %H:%M:%S", timeinfo);
-		//st_str = str(buffer);
+		time_t lrawtime;
+		time(&lrawtime);
+
+		l_timeinfo = localtime(&lrawtime);
+		
+		strftime(l_buffer, sizeof(l_buffer), "%d-%m-%Y %H:%M:%S", l_timeinfo);
+		lt_str = *l_buffer;
 
 		/*SYSTEMTIME st, lt;
 
@@ -53,6 +63,9 @@ public:
 		console::printf("DEBUG: %s", st_str);
 		console::printf("DEBUG: %s", lt_str);*/
 		
+		// console::print(st_str.c_str());
+		// console::print(lt_str.c_str());
+
 		return st_str, lt_str;
 	}
 
@@ -60,10 +73,17 @@ public:
 		console::print("DEBUG: write_string_to_file");
 		std::ofstream myfile;
 
-		char file_path[MAX_PATH];
+		char file_path[MAX_PATH] = "";
 
-		strncpy_s(file_path, dir_path, sizeof(file_path));
-		strncpy_s(file_path, filename, sizeof(file_path));
+		strncat_s(file_path, dir_path, sizeof(file_path));
+		console::print("WOAH FILE PATH");
+		console::print(file_path);
+		console::print("WOAH ENDFILE PATH");
+		strncat_s(file_path, filename, sizeof(file_path));
+
+		console::print("WOAH FILE PATH");
+		console::print(file_path);
+		console::print("WOAH ENDFILE PATH");
 
 		myfile.open(file_path, std::ios_base::app);
 		myfile << content;
@@ -72,12 +92,12 @@ public:
 
 	static bool is_file_empty(const char* dir_path, const char* filename)
 	{
-		char file_path[MAX_PATH];
+		char file_path[MAX_PATH] = "";
 
-		strncpy_s(file_path, dir_path, sizeof(file_path));
-		strncpy_s(file_path, filename, sizeof(file_path));
+		strncat_s(file_path, filename, sizeof(file_path));
+		strncat_s(file_path, dir_path, sizeof(file_path));
 
-		std::ifstream myfile(file_path);
+		std::ifstream myfile(dir_path);
 
 		return myfile.peek() == std::ifstream::traits_type::eof();
 	}
@@ -128,6 +148,7 @@ public:
 		if ((!track_logged) && (cfg_enabled_collection)) {
 			if ((playback_time / playback_length) >= (cfg_threshold / 100.0)) {
 				console::print("DEBUG: THRESHOLD PASSED!");
+				track_logged = true;
 				collect_track_data();
 			}
 			else {
@@ -145,18 +166,22 @@ public:
 		std::string stats_line;
 
 		console::print(track_info);
-		console::printf("%s", when);
+		//console::printf("%s", when);
 
-		sl << track_info << when << "\n";
+		sl << when << track_info << "\n";
 		stats_line = sl.str();
 
-		if (is_file_empty(cfg_data_path, filename)) {
-			write_string_to_file(cfg_data_path, filename, file_header);
+		//console::print(stats_line.c_str());
+		console::print(cfg_data_path);
+		//console::print(file_name);
+		if (is_file_empty(cfg_data_path, file_name)) {
+			write_string_to_file(cfg_data_path, file_name, file_header);
 		}
 
-		write_string_to_file(cfg_data_path, filename, stats_line);
-
-		track_logged = true;
+		write_string_to_file(cfg_data_path, file_name, stats_line);
+		console::print("DEBUG: INFO WRITTEN!");
+		// move to on_time_update
+		// track_logged = true;
 	};
 
 	// used
@@ -183,14 +208,15 @@ private:
 	double playback_length;
 	bool pause_state;
 	bool track_logged;
-	const char* filename = "Soni_Collecti.csv";
+	const char* file_name = "Soni_Collecti.csv";
 
+	// https://wiki.hydrogenaud.io/index.php?title=Foobar2000:Title_Formatting_Reference
 	titleformat_object::ptr tifo;
 	pfc::string8 track_info;
-	pfc::string8 format_info = "%title%,%length%,%artist%,%album%,%genre%,%date%,";
+	pfc::string8 format_info = "%length_ex%,%artist%,%title%,%album%,%album_artist%,%genre%,%date%,%codec%,%_foobar2000_version%";
 
 	std::string when;
-	const std::string file_header = "Title,Duration,Artist,Album,Genre,Year,When\n";
+	const std::string file_header = "time_local,time_unix,duration,artist,title,album,album_artist,genre,release_year,codec,foobar_version\n";
 
 	//playback_control::ptr m_playback_control = playback_control::get();
 };

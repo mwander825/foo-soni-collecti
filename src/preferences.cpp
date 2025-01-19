@@ -34,7 +34,7 @@ enum {
 };
 
 // Default path of directory where the stats are saved
-LPCSTR default_data_path = "C:\\Users";
+LPCSTR default_data_path = "C:\\Users\\";
 
 // Unsigned integers representing the values of the dialog items bogosetting 1 and 2
 cfg_uint cfg_threshold(guid_cfg_threshold, default_cfg_threshold);
@@ -149,6 +149,10 @@ void CMyPreferences::apply() {
 
 	GetWindowTextA(handler_data_path, buff_path, bsize);
 	GetWindowTextA(handler_data_path, check_buff_path, bsize);
+
+	// add slash to end if there isn't one?
+	// check
+
 	cfg_data_path = buff_path;
 	cfg_enabled_collection = IsDlgButtonChecked(IDC_ENABLE_COLLECTION);
 	OnChanged();
