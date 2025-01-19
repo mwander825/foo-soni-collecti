@@ -3,7 +3,6 @@
 #include <helpers/atl-misc.h>
 #include <string>
 #include <atlbase.h>
-// Sample preferences interface: two meaningless configuration settings accessible through a preferences page and one accessible through advanced preferences.
 
 // Check if directory exists
 bool dirExists(LPSTR dirName_in)
@@ -36,10 +35,10 @@ enum {
 // Default path of directory where the stats are saved
 LPCSTR default_data_path = "C:\\Users\\";
 
-// Unsigned integers representing the values of the dialog items bogosetting 1 and 2
+//
 cfg_uint cfg_threshold(guid_cfg_threshold, default_cfg_threshold);
-// , cfg_bogoSetting2(guid_cfg_bogoSetting2, default_cfg_bogoSetting2);
 
+// 
 cfg_string cfg_data_path(guid_data_path, default_data_path);
 
 // Checkbox
@@ -54,16 +53,10 @@ bool path_discrepancy;
 
 class CMyPreferences : public CDialogImpl<CMyPreferences>, public preferences_page_instance {
 public:
-	// Constructor - invoked by preferences_page_impl helpers - don't do Create() in here, preferences_page_impl does this for us
 	CMyPreferences(preferences_page_callback::ptr callback) : m_callback(callback) {}
-
-	// Note that we don't bother doing anything regarding destruction of our class.
-	// The host ensures that our dialog is destroyed first, then the last reference to our preferences_page_instance object is released, causing our object to be deleted.
-
 
 	//dialog resource ID
 	enum {IDD = IDD_MYPREFERENCES};
-	// preferences_page_instance methods (not all of them - get_wnd() is supplied by preferences_page_impl helpers)
 	t_uint32 get_state();
 	void apply();
 	void reset();
@@ -111,12 +104,12 @@ BOOL CMyPreferences::OnInitDialog(CWindow, LPARAM) {
 }
 
 void CMyPreferences::OnEditChange(UINT, int, CWindow) {
-	// not much to do here
 	OnChanged();
 }
 
 t_uint32 CMyPreferences::get_state() {
 	t_uint32 state = preferences_state::resettable;
+
 	// if (HasChanged() == True, state = preferences_state::resettable or preferences_state::changed
 	if (HasChanged()) state |= preferences_state::changed;
 	return state;
@@ -196,7 +189,6 @@ class preferences_page_myimpl : public preferences_page_impl<CMyPreferences> {
 public:
 	const char * get_name() {return "Soni_Collecti";}
 	GUID get_guid() {
-		// This is our GUID. Replace with your own when reusing the code.
 		static const GUID guid = { 0x683297f1, 0x41d4, 0x44a0, { 0x8a, 0xc0, 0x35, 0xb5, 0x96, 0xca, 0xb2, 0x57 } };
 		return guid;
 	}
