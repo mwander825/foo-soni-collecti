@@ -16,10 +16,30 @@ class Collector : public play_callback_static {
 public:
 	// Playback callback methods.
 	// created callbacks
-	static std::string get_local_time() {
+	struct times { std::string time_lt; std::string time_st; };
+	static times get_local_time() {
 		// https://learn.microsoft.com/en-us/windows/win32/api/minwinbase/ns-minwinbase-systemtime
 		console::print("DEBUG: get_local_time");
-		std::ostringstream lt_ostr;
+
+		time_t now_lt = time(0);
+		time_t now_st = time(0);
+		struct tm tstruct_lt;
+		struct tm tstruct_st;
+		char buf_lt[80];
+		char buf_st[80];
+		tstruct_lt = *localtime(&now_lt);
+		// Visit http://en.cppreference.com/w/cpp/chrono/c/strftime
+		// for more information about date/time format
+		strftime(buf_lt, sizeof(buf_lt), "%m-%d-%Y %H:%M:%S", &tstruct_lt);
+
+		tstruct_st = *gmtime(&now_st);
+		// Visit http://en.cppreference.com/w/cpp/chrono/c/strftime
+		// for more information about date/time format
+		strftime(buf_st, sizeof(buf_st), "%m-%d-%Y %H:%M:%S", &tstruct_st);
+
+		return times { buf_lt, buf_st };
+
+		/*std::ostringstream lt_ostr;
 		std::ostringstream st_ostr;
 		std::string st_str;
 		std::string lt_str;
@@ -44,7 +64,7 @@ public:
 		l_timeinfo = localtime(&lrawtime);
 		
 		strftime(l_buffer, sizeof(l_buffer), "%d-%m-%Y %H:%M:%S", l_timeinfo);
-		lt_str = *l_buffer;
+		lt_str = *l_buffer;*/
 
 		/*SYSTEMTIME st, lt;
 
@@ -66,7 +86,7 @@ public:
 		// console::print(st_str.c_str());
 		// console::print(lt_str.c_str());
 
-		return st_str, lt_str;
+		//return st_str, lt_str;
 	}
 
 	static void write_string_to_file(const char* dir_path, const char* filename, std::string content) {
@@ -94,10 +114,10 @@ public:
 	{
 		char file_path[MAX_PATH] = "";
 
-		strncat_s(file_path, filename, sizeof(file_path));
 		strncat_s(file_path, dir_path, sizeof(file_path));
+		strncat_s(file_path, filename, sizeof(file_path));
 
-		std::ifstream myfile(dir_path);
+		std::ifstream myfile(file_path);
 
 		return myfile.peek() == std::ifstream::traits_type::eof();
 	}
@@ -120,7 +140,9 @@ public:
 				playback_length = playback_control::get()->playback_get_length();
 				console::print("DEBUG: I HAVE THE LENGTH:");
 				console::print(playback_length);
-				when = get_local_time();
+				times current_times = get_local_time();
+				when_lt = current_times.time_lt;
+				when_st = current_times.time_st;
 			}
 			else if (playback_control::get()->is_playing()) {
 				// Starting playback but not done opening the first track yet
@@ -166,9 +188,10 @@ public:
 		std::string stats_line;
 
 		console::print(track_info);
-		//console::printf("%s", when);
+		//console::print(when_lt);
+		//console::print(when_st);
 
-		sl << when << track_info << "\n";
+		sl << when_lt << "," << when_st << "," << track_info << "\n";
 		stats_line = sl.str();
 
 		//console::print(stats_line.c_str());
@@ -215,8 +238,9 @@ private:
 	pfc::string8 track_info;
 	pfc::string8 format_info = "%length_ex%,%artist%,%title%,%album%,%album_artist%,%genre%,%date%,%codec%,%_foobar2000_version%";
 
-	std::string when;
-	const std::string file_header = "time_local,time_unix,duration,artist,title,album,album_artist,genre,release_year,codec,foobar_version\n";
+	std::string when_st;
+	std::string when_lt;
+	const std::string file_header = "time_local,time_gmt,duration,artist,title,album,album_artist,genre,release_year,codec,foobar_version\n";
 
 	//playback_control::ptr m_playback_control = playback_control::get();
 };
