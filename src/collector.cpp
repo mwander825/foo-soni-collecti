@@ -18,7 +18,7 @@ public:
 
 	static times get_local_time() {
 		// https://learn.microsoft.com/en-us/windows/win32/api/minwinbase/ns-minwinbase-systemtime
-		console::print("DEBUG: get_local_time");
+		//console::print("DEBUG: get_local_time");
 		time_t now_lt = time(0);
 		time_t now_st = time(0);
 		struct tm tstruct_lt;
@@ -40,24 +40,21 @@ public:
 	}
 
 	static void write_string_to_file(const char* dir_path, const char* filename, std::string content) {
-		console::print("DEBUG: write_string_to_file");
+		//console::print("DEBUG: write_string_to_file");
 		std::ofstream myfile;
 
 		char file_path[MAX_PATH] = "";
 
 		strncat_s(file_path, dir_path, sizeof(file_path));
-		console::print("WOAH FILE PATH");
-		console::print(file_path);
-		console::print("WOAH ENDFILE PATH");
+		if (file_path[sizeof(file_path) - 1] != '\\') {
+			strncat_s(file_path, "\\", 1);
+		}
 		strncat_s(file_path, filename, sizeof(file_path));
-
-		console::print("WOAH FILE PATH");
-		console::print(file_path);
-		console::print("WOAH ENDFILE PATH");
 
 		myfile.open(file_path, std::ios_base::app);
 		myfile << content;
 		myfile.close();
+
 	}
 
 	static bool is_file_empty(const char* dir_path, const char* filename)
@@ -65,6 +62,9 @@ public:
 		char file_path[MAX_PATH] = "";
 
 		strncat_s(file_path, dir_path, sizeof(file_path));
+		if (file_path[sizeof(file_path) - 1] != '\\') {
+			strncat_s(file_path, "\\", 1);
+		}
 		strncat_s(file_path, filename, sizeof(file_path));
 
 		std::ifstream myfile(file_path);
@@ -73,30 +73,33 @@ public:
 	}
 
 	void on_new_track_update() {
+		playback_time = 0;
 		//playback_control::ptr m_playback_control = playback_control::get();
-		console::print("DEBUG: on_new_track_update");
+		//console::print("DEBUG: on_new_track_update");
 		if (cfg_enabled_collection) {
 			track_logged = false;
-			console::print("DEBUG: COLLECTION IS ENABLED!!! GOGOGO!!!");
+	
 			if (tifo.is_empty()) {
-				console::print("DEBUG: TIFO IS EMPTY");
+				//console::print("DEBUG: TIFO IS EMPTY");
 				titleformat_compiler::get()->compile_safe_ex(tifo, format_info);
 			}
 
 			if (playback_control::get()->playback_format_title(NULL, track_info, tifo, NULL, playback_control::display_level_none)) {
 				// Succeeded already
-				console::print("DEBUG: PLAYBACK SUCCEEDED");
+				//console::print("DEBUG: PLAYBACK SUCCEEDED");
+				titleformat_compiler::get()->compile_safe_ex(tpath, "%path%");
+				playback_control::get()->playback_format_title(NULL, track_path, tpath, NULL, playback_control::display_level_none);
+				console::printf("Logging %s", track_path.c_str());
+
 				playback_state = 1;
 				playback_length = playback_control::get()->playback_get_length();
-				console::print("DEBUG: I HAVE THE LENGTH:");
-				console::print(playback_length);
 				times current_times = get_local_time();
 				when_lt = current_times.time_lt;
 				when_st = current_times.time_st;
 			}
 			else if (playback_control::get()->is_playing()) {
 				// Starting playback but not done opening the first track yet
-				console::print("DEBUG: STILL OPENING!!!");
+				//console::print("DEBUG: STILL OPENING!!!");
 				playback_state = 2;
 				playback_time = 0;
 			}
@@ -117,6 +120,7 @@ public:
 				//console::print("DEBUG: THRESHOLD PASSED!");
 				track_logged = true;
 				collect_track_data();
+				console::printf("Logged %s", track_path.c_str());
 			}
 			else {
 				//console::print("DEBUG: TIME UP! TIME UP!");
@@ -140,7 +144,7 @@ public:
 		}
 
 		write_string_to_file(cfg_data_path, file_name, stats_line);
-		console::print("DEBUG: INFO WRITTEN!");
+		//console::print("DEBUG: INFO WRITTEN!");
 		// move to on_time_update
 		// track_logged = true;
 	};
@@ -170,15 +174,18 @@ private:
 	bool pause_state;
 	bool track_logged;
 	const char* file_name = "Soni_Collecti.csv";
+	const std::string file_header = "time_local,time_gmt,duration,artist,title,album,album_artist,genre,release_year,codec,foobar_version\n";
+	std::string when_st;
+	std::string when_lt;
 
 	// https://wiki.hydrogenaud.io/index.php?title=Foobar2000:Title_Formatting_Reference
 	titleformat_object::ptr tifo;
+	titleformat_object::ptr tpath;
+	
 	pfc::string8 track_info;
+	pfc::string8 track_path;
 	pfc::string8 format_info = "%length_ex%,%artist%,%title%,%album%,%album_artist%,%genre%,%date%,%codec%,%_foobar2000_version%";
-
-	std::string when_st;
-	std::string when_lt;
-	const std::string file_header = "time_local,time_gmt,duration,artist,title,album,album_artist,genre,release_year,codec,foobar_version\n";
+	
 };
 
 static play_callback_static_factory_t<Collector> collector_g;

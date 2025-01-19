@@ -27,7 +27,6 @@ static const GUID guid_data_path = { 0x44b9a8e5, 0xbf5e, 0x44e2, { 0x96, 0xd6, 0
 // This GUID identifies the checkbox to enable playback statistic collection.
 static const GUID guid_enabled_collection = { 0xcfea0555, 0xfa10, 0x4ea7, { 0x9c, 0xab, 0xf0, 0x29, 0x3f, 0x10, 0x36, 0x2c } };
 
-// This GUID identifies our Advanced Preferences branch (replace with your own when reusing code).
 enum {
 	default_cfg_threshold = 50,
 };
@@ -81,7 +80,7 @@ private:
 };
 
 BOOL CMyPreferences::OnInitDialog(CWindow, LPARAM) {
-	console::printf("DEBUG: Preferences window initialized");
+	//console::print("DEBUG: Preferences window initialized");
 
 	handler_data_path = GetDlgItem(IDC_PATH);
 	handler_checkbox = GetDlgItem(IDC_ENABLE_COLLECTION);
@@ -143,9 +142,6 @@ void CMyPreferences::apply() {
 	GetWindowTextA(handler_data_path, buff_path, bsize);
 	GetWindowTextA(handler_data_path, check_buff_path, bsize);
 
-	// add slash to end if there isn't one?
-	// check
-
 	cfg_data_path = buff_path;
 	cfg_enabled_collection = IsDlgButtonChecked(IDC_ENABLE_COLLECTION);
 	OnChanged();
@@ -187,7 +183,7 @@ void CMyPreferences::FolderPickOpen(UINT, int, CWindow) {
 class preferences_page_myimpl : public preferences_page_impl<CMyPreferences> {
 	// preferences_page_impl<> helper deals with instantiation of our dialog; inherits from preferences_page_v3.
 public:
-	const char * get_name() {return "Soni_Collecti";}
+	const char * get_name() {return "Soni Collecti";}
 	GUID get_guid() {
 		static const GUID guid = { 0x683297f1, 0x41d4, 0x44a0, { 0x8a, 0xc0, 0x35, 0xb5, 0x96, 0xca, 0xb2, 0x57 } };
 		return guid;
