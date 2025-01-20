@@ -1,6 +1,5 @@
 //{{NO_DEPENDENCIES}}
 // Microsoft Visual C++ generated include file.
-// Used by foo_sample.rc
 //
 #define IDD_MYPREFERENCES               148
 #define IDC_THRESHOLD                   1001

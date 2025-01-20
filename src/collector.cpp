@@ -9,61 +9,47 @@
 #include <fstream>
 #include "collector.h"
 #include <ctime>
+#include <time.h>
 
 class Collector : public play_callback_static {
 
 public:
-	// Playback callback methods.
-	// created callbacks
-	static std::string get_local_time() {
+	struct times { std::string time_lt; std::string time_st; };
+
+	static times get_local_time() {
 		// https://learn.microsoft.com/en-us/windows/win32/api/minwinbase/ns-minwinbase-systemtime
-		console::print("DEBUG: get_local_time");
-		std::ostringstream lt_ostr;
-		std::ostringstream st_ostr;
-		std::string st_str;
-		std::string lt_str;
+		//console::print("DEBUG: get_local_time");
+		time_t now_lt = time(0);
+		time_t now_st = time(0);
+		struct tm tstruct_lt;
+		struct tm tstruct_st;
+		char buf_lt[80];
+		char buf_st[80];
 
-		time_t rawtime;
-		struct tm * s_timeinfo;
-		struct tm * l_timeinfo;
+		tstruct_lt = *localtime(&now_lt);
+		// Visit http://en.cppreference.com/w/cpp/chrono/c/strftime
+		// for more information about date/time format
+		strftime(buf_lt, sizeof(buf_lt), "%m-%d-%Y %H:%M:%S", &tstruct_lt);
 
-		char s_buffer[80];
-		char l_buffer[80];
+		tstruct_st = *gmtime(&now_st);
+		// Visit http://en.cppreference.com/w/cpp/chrono/c/strftime
+		// for more information about date/time format
+		strftime(buf_st, sizeof(buf_st), "%m-%d-%Y %H:%M:%S", &tstruct_st);
 
-		time(&rawtime);
-		l_timeinfo = localtime(&rawtime);
-
-		//strftime(buffer, sizeof(buffer), "%d-%m-%Y %H:%M:%S", timeinfo);
-		//st_str = str(buffer);
-
-		/*SYSTEMTIME st, lt;
-
-		GetSystemTime(&st);
-		GetLocalTime(&lt);
-
-		console::printf("%d", st.wHour);
-		console::printf("%d", lt.wMinute);
-
-		st_ostr << st.wHour << ":" << st.wMinute << ":" << st.wSecond << " " << st.wMonth << "-" << st.wDay << "-" << st.wYear;
-		st_str = st_ostr.str();
-
-		lt_ostr << lt.wHour << ":" << lt.wMinute << ":" << lt.wSecond << " " << lt.wMonth << "-" << lt.wDay << "-" << lt.wYear;
-		lt_str = lt_ostr.str();
-
-		console::printf("DEBUG: %s", st_str);
-		console::printf("DEBUG: %s", lt_str);*/
-		
-		return st_str, lt_str;
+		return times { buf_lt, buf_st };
 	}
 
 	static void write_string_to_file(const char* dir_path, const char* filename, std::string content) {
-		console::print("DEBUG: write_string_to_file");
+		//console::print("DEBUG: write_string_to_file");
 		std::ofstream myfile;
 
-		char file_path[MAX_PATH];
+		char file_path[MAX_PATH] = "";
 
-		strncpy_s(file_path, dir_path, sizeof(file_path));
-		strncpy_s(file_path, filename, sizeof(file_path));
+		strncat_s(file_path, dir_path, sizeof(file_path));
+		if (file_path[sizeof(file_path) - 1] != '\\') {
+			strncat_s(file_path, "\\", 1);
+		}
+		strncat_s(file_path, filename, sizeof(file_path));
 
 		myfile.open(file_path, std::ios_base::app);
 		myfile << content;
@@ -72,10 +58,13 @@ public:
 
 	static bool is_file_empty(const char* dir_path, const char* filename)
 	{
-		char file_path[MAX_PATH];
+		char file_path[MAX_PATH] = "";
 
-		strncpy_s(file_path, dir_path, sizeof(file_path));
-		strncpy_s(file_path, filename, sizeof(file_path));
+		strncat_s(file_path, dir_path, sizeof(file_path));
+		if (file_path[sizeof(file_path) - 1] != '\\') {
+			strncat_s(file_path, "\\", 1);
+		}
+		strncat_s(file_path, filename, sizeof(file_path));
 
 		std::ifstream myfile(file_path);
 
@@ -83,28 +72,33 @@ public:
 	}
 
 	void on_new_track_update() {
+		playback_time = 0;
 		//playback_control::ptr m_playback_control = playback_control::get();
-		console::print("DEBUG: on_new_track_update");
+		//console::print("DEBUG: on_new_track_update");
 		if (cfg_enabled_collection) {
 			track_logged = false;
-			console::print("DEBUG: COLLECTION IS ENABLED!!! GOGOGO!!!");
+	
 			if (tifo.is_empty()) {
-				console::print("DEBUG: TIFO IS EMPTY");
+				//console::print("DEBUG: TIFO IS EMPTY");
 				titleformat_compiler::get()->compile_safe_ex(tifo, format_info);
 			}
 
-			if (playback_control::get()->playback_format_title(NULL, track_info, tifo, NULL, playback_control::display_level_none)) {
+			if (playback_control::get()->playback_format_title(NULL, track_info, tifo, NULL, playback_control::display_level_none) && playback_state != 1) {
 				// Succeeded already
-				console::print("DEBUG: PLAYBACK SUCCEEDED");
+				//console::print("DEBUG: PLAYBACK SUCCEEDED");
+				titleformat_compiler::get()->compile_safe_ex(tpath, "%path%");
+				playback_control::get()->playback_format_title(NULL, track_path, tpath, NULL, playback_control::display_level_none);
+				console::printf("Logging %s", track_path.c_str());
+
 				playback_state = 1;
 				playback_length = playback_control::get()->playback_get_length();
-				console::print("DEBUG: I HAVE THE LENGTH:");
-				console::print(playback_length);
-				when = get_local_time();
+				times current_times = get_local_time();
+				when_lt = current_times.time_lt;
+				when_st = current_times.time_st;
 			}
 			else if (playback_control::get()->is_playing()) {
 				// Starting playback but not done opening the first track yet
-				console::print("DEBUG: STILL OPENING!!!");
+				//console::print("DEBUG: STILL OPENING!!!");
 				playback_state = 2;
 				playback_time = 0;
 			}
@@ -113,53 +107,47 @@ public:
 				playback_state = 0;
 			}
 		}
+		else { track_logged = true; }
 	};
 	void on_time_update() {
 		//double playback_time = playback_control::get()->playback_get_position();
 		//double playback_length = playback_control::get()->playback_get_length();
-		console::print("DEBUG: on_time_update");
-		console::print(playback_time);
-		console::print(playback_length);
-		console::print(cfg_threshold);
-		console::print((cfg_threshold / 100.0));
-		console::print((playback_time / playback_length));
-		console::print((playback_time / playback_length) >= (cfg_threshold / 100.0));
+		//console::print("DEBUG: on_time_update");
+		//console::print(playback_time);
 
 		if ((!track_logged) && (cfg_enabled_collection)) {
 			if ((playback_time / playback_length) >= (cfg_threshold / 100.0)) {
-				console::print("DEBUG: THRESHOLD PASSED!");
+				//console::print("DEBUG: THRESHOLD PASSED!");
+				track_logged = true;
 				collect_track_data();
+				console::printf("Logged %s", track_path.c_str());
 			}
 			else {
-				console::print("DEBUG: TIME UP! TIME UP!");
+				//console::print("DEBUG: TIME UP! TIME UP!");
 				playback_time += 1;
 			}
-			// playback_time = m_playback_control->playback_get_position();
+			//playback_time = m_playback_control->playback_get_position();
 		}
 	};
 
 	// ...
 	void collect_track_data() {
-		console::print("DEBUG: collect_track_data");
+		//console::print("DEBUG: collect_track_data");
 		std::ostringstream sl;
 		std::string stats_line;
 
-		console::print(track_info);
-		console::printf("%s", when);
-
-		sl << track_info << when << "\n";
+		sl << when_lt << "," << when_st << "," << track_info << "\n";
 		stats_line = sl.str();
 
-		if (is_file_empty(cfg_data_path, filename)) {
-			write_string_to_file(cfg_data_path, filename, file_header);
+		if (is_file_empty(cfg_data_path, file_name)) {
+			write_string_to_file(cfg_data_path, file_name, file_header);
 		}
 
-		write_string_to_file(cfg_data_path, filename, stats_line);
-
-		track_logged = true;
+		write_string_to_file(cfg_data_path, file_name, stats_line);
+		//console::print("DEBUG: INFO WRITTEN!");
 	};
 
-	// used
+	// called
 	void on_playback_new_track(metadb_handle_ptr p_track) { on_new_track_update(); }
 	void on_playback_starting(playback_control::t_track_command p_command, bool p_paused) { on_new_track_update(); }
 	void on_playback_edited(metadb_handle_ptr p_track) { on_new_track_update(); }
@@ -183,154 +171,19 @@ private:
 	double playback_length;
 	bool pause_state;
 	bool track_logged;
-	const char* filename = "Soni_Collecti.csv";
+	const char* file_name = "Soni_Collecti.csv";
+	const std::string file_header = "time_local,time_gmt,duration,artist,title,album,album_artist,genre,release_year,codec,foobar_version\n";
+	std::string when_st;
+	std::string when_lt;
 
+	// https://wiki.hydrogenaud.io/index.php?title=Foobar2000:Title_Formatting_Reference
 	titleformat_object::ptr tifo;
+	titleformat_object::ptr tpath;
+	
 	pfc::string8 track_info;
-	pfc::string8 format_info = "%title%,%length%,%artist%,%album%,%genre%,%date%,";
-
-	std::string when;
-	const std::string file_header = "Title,Duration,Artist,Album,Genre,Year,When\n";
-
-	//playback_control::ptr m_playback_control = playback_control::get();
+	pfc::string8 track_path;
+	pfc::string8 format_info = "%length_ex%,%artist%,%title%,%album%,%album_artist%,%genre%,%date%,%codec%,%_foobar2000_version%";
+	
 };
-
-//static std::string get_local_time() {
-//	std::ostringstream st;
-//	std::string st_string;
-//
-//	SYSTEMTIME lt;
-//	GetLocalTime(&lt);
-//
-//	st << lt.wHour << ":" << lt.wMinute << ":" << lt.wSecond << " " << lt.wMonth << "-" << lt.wDay << "-" << lt.wYear;
-//	st_string = st.str();
-//
-//	return st_string;
-//}
-//
-//static void write_string_to_file(const char* dir_path, const char* filename, std::string content) {
-//	console::print("DEBUG: write_string_to_file");
-//	std::ofstream myfile;
-//
-//	char file_path[MAX_PATH];
-//
-//	strncpy_s(file_path, dir_path, sizeof(file_path));
-//	strncpy_s(file_path, filename, sizeof(file_path));
-//
-//	myfile.open(file_path, std::ios_base::app);
-//	myfile << content;
-//	myfile.close();
-//}
-//
-//static bool is_file_empty(const char* dir_path, const char* filename)
-//{
-//	char file_path[MAX_PATH];
-//
-//	strncpy_s(file_path, dir_path, sizeof(file_path));
-//	strncpy_s(file_path, filename, sizeof(file_path));
-//
-//	std::ifstream myfile(file_path);
-//
-//	return myfile.peek() == std::ifstream::traits_type::eof();
-//}
-
-//void on_new_track_update() noexcept {
-//
-//	console::print("DEBUG: on_new_track_update");
-//	if (cfg_enabled_collection) {
-//		if (tifo.is_empty()) {
-//			titleformat_compiler::get()->compile_safe_ex(tifo, format_info);
-//		}
-//
-//		if (m_playback_control->playback_format_title(NULL, track_info, tifo, NULL, playback_control::display_level_none)) {
-//			// Succeeded already
-//			playback_state = 1;
-//			playback_length = m_playback_control->playback_get_length();
-//			when = get_local_time();
-//		}
-//		else if (m_playback_control->is_playing()) {
-//			// Starting playback but not done opening the first track yet
-//			playback_state = 2;
-//			playback_time = 0;
-//		}
-//		else {
-//			// Other state
-//			playback_state = 0;
-//		}
-//	}
-//}
-
-//void Collector::collect_track_data() noexcept {
-//	console::print("DEBUG: collect_track_data");
-//	std::ostringstream sl;
-//	std::string stats_line;
-//
-//	sl << track_info << when << "\n";
-//	stats_line = sl.str();
-//
-//	if (is_file_empty(cfg_data_path, filename)) {
-//		write_string_to_file(cfg_data_path, filename, file_header);
-//	}
-//
-//	write_string_to_file(cfg_data_path, filename, stats_line);
-//}
-
-//void Collector::on_time_update() noexcept {
-//	console::print("DEBUG: on_time_update");
-//	if (cfg_enabled_collection) {
-//		if (playback_time / playback_length >= 1 / cfg_threshold) {
-//			collect_track_data();
-//		}
-//		else {
-//			playback_time += 1;
-//		}
-//		// playback_time = m_playback_control->playback_get_position();
-//	}
-//}
-
-//void Collector::on_pause_update() {
-//	if (cfg_enabled_collection) {
-//		if (m_playback_control->is_playing()) {
-//			playback_state = 1;
-//		}
-//		else {
-//			playback_state = 0;
-//		}
-//	}
-//}
-
-//unsigned Collector::get_flags() {
-//
-//}
-//
-//void Collector::on_stopped_update() {
-//
-//}
-//
-//void Collector::on_volume_change() {
-//
-//}
-//
-//void Collector::on_playback_dynamic_info() {
-//
-//}
-//
-//void Collector::on_playback_dynamic_info_track() {
-//
-//}
-
-//static service_impl_t<Collector> g_collector;
-
-//class myinitquit : public initquit {
-//public:
-//	void on_init() {
-//		playback_control::ptr m_playback_control = playback_control::get();;
-//	}
-//	void on_quit() {
-//		console::print("Sample component: on_quit()");
-//	}
-//};
-//
-//static initquit_factory_t<myinitquit> g_myinitquit_factory;
 
 static play_callback_static_factory_t<Collector> collector_g;
