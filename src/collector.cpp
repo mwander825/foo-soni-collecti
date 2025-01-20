@@ -25,6 +25,7 @@ public:
 		struct tm tstruct_st;
 		char buf_lt[80];
 		char buf_st[80];
+
 		tstruct_lt = *localtime(&now_lt);
 		// Visit http://en.cppreference.com/w/cpp/chrono/c/strftime
 		// for more information about date/time format
@@ -36,7 +37,6 @@ public:
 		strftime(buf_st, sizeof(buf_st), "%m-%d-%Y %H:%M:%S", &tstruct_st);
 
 		return times { buf_lt, buf_st };
-
 	}
 
 	static void write_string_to_file(const char* dir_path, const char* filename, std::string content) {
@@ -54,7 +54,6 @@ public:
 		myfile.open(file_path, std::ios_base::app);
 		myfile << content;
 		myfile.close();
-
 	}
 
 	static bool is_file_empty(const char* dir_path, const char* filename)
@@ -113,8 +112,8 @@ public:
 	void on_time_update() {
 		//double playback_time = playback_control::get()->playback_get_position();
 		//double playback_length = playback_control::get()->playback_get_length();
-		console::print("DEBUG: on_time_update");
-		console::print(playback_time);
+		//console::print("DEBUG: on_time_update");
+		//console::print(playback_time);
 
 		if ((!track_logged) && (cfg_enabled_collection)) {
 			if ((playback_time / playback_length) >= (cfg_threshold / 100.0)) {

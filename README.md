@@ -4,7 +4,7 @@ Essentially a local scrobbler, where the playback stats are saved locally on you
 
 ## Installation
 Install through the foo-soni-collecti.fb2k-component file, in the **Release** directory.<br/>
-Supports foobar2000 v2.0, x64 and x86.
+Supports foobar2000 >=v2.0, x64 and x86.
 
 ## Usage
 When the playback time of the currently playing song reaches the chosen 
@@ -68,4 +68,6 @@ Guides and references for developing and troubleshooting components are not very
 
 ### MSVS
 * [Cannot open resource file in VS 2015: Can't open include file afxres.h](https://stackoverflow.com/questions/35436654/cannot-open-resource-file-in-vs-2015-cant-open-include-file-afxres-h)
+* [Error C1047: Object file created with an older compiler than other objects](https://stackoverflow.com/questions/837073/error-c1047-object-file-created-with-an-older-compiler-than-other-objects)
 * [Linker Tools Error LNK2001](https://learn.microsoft.com/en-us/cpp/error-messages/tool-errors/linker-tools-error-lnk2001?view=msvc-170)
+

@@ -1,0 +1,17 @@
+### foo_soni_collecti
+..\lib\foobar2000_sdk;..\lib\foobar2000_sdk\foobar2000;..\lib\WTL\Include;%(AdditionalIncludeDirectories)
+
+### foobar2000_component_client
+..;../..;..\..\..\WTL\Include
+
+### foobar2000_SDK
+..;..\..;..\..\..\WTL\Include
+
+### foobar2000_sdk_helpers
+../..;..;..\..\..\WTL\Include
+
+### libPPUI
+..;..\..\WTL\Include
+
+### pfc
+..\WTL\Include
