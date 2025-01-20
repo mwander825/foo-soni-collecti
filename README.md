@@ -3,7 +3,7 @@ foobar2000 component for offline playback statistics logging. <br/>
 Essentially a local scrobbler, where the playback stats are saved locally on your machine.
 
 ## Installation
-Install through the foo-soni-collecti.fb2k-component file, in the **Release** directory.<br/>
+Install through the *.fb2k-component* file, in the **packed_component** directory.<br/>
 Supports foobar2000 >=v2.0, x64 and x86.
 
 ## Usage
