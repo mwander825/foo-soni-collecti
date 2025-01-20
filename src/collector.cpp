@@ -84,7 +84,7 @@ public:
 				titleformat_compiler::get()->compile_safe_ex(tifo, format_info);
 			}
 
-			if (playback_control::get()->playback_format_title(NULL, track_info, tifo, NULL, playback_control::display_level_none)) {
+			if (playback_control::get()->playback_format_title(NULL, track_info, tifo, NULL, playback_control::display_level_none) && playback_state != 1) {
 				// Succeeded already
 				//console::print("DEBUG: PLAYBACK SUCCEEDED");
 				titleformat_compiler::get()->compile_safe_ex(tpath, "%path%");
@@ -113,7 +113,8 @@ public:
 	void on_time_update() {
 		//double playback_time = playback_control::get()->playback_get_position();
 		//double playback_length = playback_control::get()->playback_get_length();
-		//console::print("DEBUG: on_time_update");
+		console::print("DEBUG: on_time_update");
+		console::print(playback_time);
 
 		if ((!track_logged) && (cfg_enabled_collection)) {
 			if ((playback_time / playback_length) >= (cfg_threshold / 100.0)) {
@@ -145,8 +146,6 @@ public:
 
 		write_string_to_file(cfg_data_path, file_name, stats_line);
 		//console::print("DEBUG: INFO WRITTEN!");
-		// move to on_time_update
-		// track_logged = true;
 	};
 
 	// called
