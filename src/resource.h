@@ -2,6 +2,8 @@
 // Microsoft Visual C++ generated include file.
 //
 #define IDD_MYPREFERENCES               148
+#define IDC_FILE						149
+#define IDC_BACKUP						150
 #define IDC_THRESHOLD                   1001
 #define IDC_PATH						1002
 #define IDC_DIRBROWSE					1022

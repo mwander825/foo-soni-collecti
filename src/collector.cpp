@@ -14,62 +14,62 @@
 class Collector : public play_callback_static {
 
 public:
-	struct times { std::string time_lt; std::string time_st; };
+	//struct times { std::string time_lt; std::string time_st; };
 
-	static times get_local_time() {
-		// https://learn.microsoft.com/en-us/windows/win32/api/minwinbase/ns-minwinbase-systemtime
-		//console::print("DEBUG: get_local_time");
-		time_t now_lt = time(0);
-		time_t now_st = time(0);
-		struct tm tstruct_lt;
-		struct tm tstruct_st;
-		char buf_lt[80];
-		char buf_st[80];
+	//static times get_local_time() {
+	//	// https://learn.microsoft.com/en-us/windows/win32/api/minwinbase/ns-minwinbase-systemtime
+	//	//console::print("DEBUG: get_local_time");
+	//	time_t now_lt = time(0);
+	//	time_t now_st = time(0);
+	//	struct tm tstruct_lt;
+	//	struct tm tstruct_st;
+	//	char buf_lt[80];
+	//	char buf_st[80];
 
-		tstruct_lt = *localtime(&now_lt);
-		// Visit http://en.cppreference.com/w/cpp/chrono/c/strftime
-		// for more information about date/time format
-		strftime(buf_lt, sizeof(buf_lt), "%m-%d-%Y %H:%M:%S", &tstruct_lt);
+	//	tstruct_lt = *localtime(&now_lt);
+	//	// Visit http://en.cppreference.com/w/cpp/chrono/c/strftime
+	//	// for more information about date/time format
+	//	strftime(buf_lt, sizeof(buf_lt), "%m-%d-%Y %H:%M:%S", &tstruct_lt);
 
-		tstruct_st = *gmtime(&now_st);
-		// Visit http://en.cppreference.com/w/cpp/chrono/c/strftime
-		// for more information about date/time format
-		strftime(buf_st, sizeof(buf_st), "%m-%d-%Y %H:%M:%S", &tstruct_st);
+	//	tstruct_st = *gmtime(&now_st);
+	//	// Visit http://en.cppreference.com/w/cpp/chrono/c/strftime
+	//	// for more information about date/time format
+	//	strftime(buf_st, sizeof(buf_st), "%m-%d-%Y %H:%M:%S", &tstruct_st);
 
-		return times { buf_lt, buf_st };
-	}
+	//	return times { buf_lt, buf_st };
+	//}
 
-	static void write_string_to_file(const char* dir_path, const char* filename, std::string content) {
-		//console::print("DEBUG: write_string_to_file");
-		std::ofstream myfile;
+	//static void write_string_to_file(const char* dir_path, const char* filename, std::string content) {
+	//	//console::print("DEBUG: write_string_to_file");
+	//	std::ofstream myfile;
 
-		char file_path[MAX_PATH] = "";
+	//	char file_path[MAX_PATH] = "";
 
-		strncat_s(file_path, dir_path, sizeof(file_path));
-		if (file_path[sizeof(file_path) - 1] != '\\') {
-			strncat_s(file_path, "\\", 1);
-		}
-		strncat_s(file_path, filename, sizeof(file_path));
+	//	strncat_s(file_path, dir_path, sizeof(file_path));
+	//	if (file_path[sizeof(file_path) - 1] != '\\') {
+	//		strncat_s(file_path, "\\", 1);
+	//	}
+	//	strncat_s(file_path, filename, sizeof(file_path));
 
-		myfile.open(file_path, std::ios_base::app);
-		myfile << content;
-		myfile.close();
-	}
+	//	myfile.open(file_path, std::ios_base::app);
+	//	myfile << content;
+	//	myfile.close();
+	//}
 
-	static bool is_file_empty(const char* dir_path, const char* filename)
-	{
-		char file_path[MAX_PATH] = "";
+	//static bool is_file_empty(const char* dir_path, const char* filename)
+	//{
+	//	char file_path[MAX_PATH] = "";
 
-		strncat_s(file_path, dir_path, sizeof(file_path));
-		if (file_path[sizeof(file_path) - 1] != '\\') {
-			strncat_s(file_path, "\\", 1);
-		}
-		strncat_s(file_path, filename, sizeof(file_path));
+	//	strncat_s(file_path, dir_path, sizeof(file_path));
+	//	if (file_path[sizeof(file_path) - 1] != '\\') {
+	//		strncat_s(file_path, "\\", 1);
+	//	}
+	//	strncat_s(file_path, filename, sizeof(file_path));
 
-		std::ifstream myfile(file_path);
+	//	std::ifstream myfile(file_path);
 
-		return myfile.peek() == std::ifstream::traits_type::eof();
-	}
+	//	return myfile.peek() == std::ifstream::traits_type::eof();
+	//}
 
 	void on_new_track_update() {
 		playback_time = 0;
@@ -109,6 +109,27 @@ public:
 		}
 		else { track_logged = true; }
 	};
+
+	void on_track_info_edited() {
+		// Called when the track info is edited during playback (?)
+		// This appears to happen with the foo_playcount component (when the play count gets updated)
+		if (cfg_enabled_collection) {
+			if (playback_state) {
+				// Rewrites track_info with the (assumedly) changed info
+				playback_control::get()->playback_format_title(NULL, track_path, tpath, NULL, playback_control::display_level_none);
+			}
+		}
+	};
+
+	void on_seek() {
+		if (cfg_enabled_collection) {
+			if (playback_time == 0.0) {
+				track_logged = false;
+			}
+			//console::print("what do you seek");
+		}
+	}
+
 	void on_time_update() {
 		//double playback_time = playback_control::get()->playback_get_position();
 		//double playback_length = playback_control::get()->playback_get_length();
@@ -139,30 +160,30 @@ public:
 		sl << when_lt << "," << when_st << "," << track_info << "\n";
 		stats_line = sl.str();
 
-		if (is_file_empty(cfg_data_path, file_name)) {
-			write_string_to_file(cfg_data_path, file_name, file_header);
+		if (is_file_empty(cfg_data_path.toString(), file_name)) {
+			write_string_to_file(cfg_data_path.toString(), file_name, file_header);
 		}
 
-		write_string_to_file(cfg_data_path, file_name, stats_line);
+		write_string_to_file(cfg_data_path.toString(), file_name, stats_line);
 		//console::print("DEBUG: INFO WRITTEN!");
 	};
 
 	// called
 	void on_playback_new_track(metadb_handle_ptr p_track) { on_new_track_update(); }
 	void on_playback_starting(playback_control::t_track_command p_command, bool p_paused) { on_new_track_update(); }
-	void on_playback_edited(metadb_handle_ptr p_track) { on_new_track_update(); }
+	void on_playback_edited(metadb_handle_ptr p_track) { on_track_info_edited(); };
 	void on_playback_time(double p_time) { on_time_update(); }
 
 	// empty
 	void on_playback_stop(play_control::t_stop_reason p_reason) {};
-	void on_playback_seek(double p_time) {};
+	void on_playback_seek(double p_time) { on_seek(); };
 	void on_playback_pause(bool p_state) {};
 	void on_volume_change(float p_new_val) {};
-	void on_playback_dynamic_info(const file_info& p_info) {};
-	void on_playback_dynamic_info_track(const file_info& p_info) {};
+	void on_playback_dynamic_info(const file_info & p_info) {};
+	void on_playback_dynamic_info_track(const file_info & p_info) {};
 
 	// flags
-	virtual unsigned get_flags() { return flag_on_playback_new_track | flag_on_playback_starting | flag_on_playback_edited | flag_on_playback_time; }
+	virtual unsigned get_flags() { return flag_on_playback_new_track | flag_on_playback_starting | flag_on_playback_edited | flag_on_playback_time | flag_on_playback_seek; }
 	
 private:
 	
@@ -182,7 +203,20 @@ private:
 	
 	pfc::string8 track_info;
 	pfc::string8 track_path;
-	pfc::string8 format_info = "%length_ex%,%artist%,%title%,%album%,%album_artist%,%genre%,%date%,%codec%,%_foobar2000_version%";
+	const char * format_info =
+		"%length_ex%," // extended length (hh:mm:ss.msms)
+		"$insert($insert(%artist%,$char(34),$len(%artist%)),$char(34),0)," // artist
+		"$insert($insert($replace(%title%,$char(34),$char(92)$char(34)),$char(34),$len(%title%)),$char(34),0)," // title
+		"$insert($insert(%album%,$char(34),$len(%album%)),$char(34),0)," // album
+		"$insert($insert(%album_artist%,$char(34),$len(%album_artist%)),$char(34),0)," // album artist
+		"$insert($insert(%genre%,$char(34),$len(%genre%)),$char(34),0)," // genre
+		"%date%," // year of release
+		"%codec%," // file codec
+		"%_foobar2000_version%"; // foobar version
+		//"$insert($insert($insert($insert(%artist%,$char(45),$len(%artist%)),%album%,$add($len(%artist%),1)),$char(34),$add($add($len(%artist%),$len(%album%)),3)),$char(34),0),"
+	
+	std::string ext = ".csv";
+	//pfc::string8 format_info = "%length_ex%,%artist%,%title%,%album%,%album_artist%,%genre%,%date%,%codec%,%_foobar2000_version%";
 	
 };
 

@@ -71,7 +71,10 @@ BEGIN
 	PUSHBUTTON		"Browse...",IDC_DIRBROWSE, 250,120,36,13
 	RTEXT			"Statistics File Directory:",IDC_STATIC,10,110,90,8
 	EDITTEXT		IDC_PATH,27,120,220,12,ES_AUTOHSCROLL
-
+	RTEXT			"Filename:",IDC_STATIC,8,135,50,8
+	EDITTEXT		IDC_FILE,27,145,90,12
+// Backup button
+	PUSHBUTTON		"Backup Data File",IDC_BACKUP,27,195,80,16
 END
 
 /////////////////////////////////////////////////////////////////////////////
