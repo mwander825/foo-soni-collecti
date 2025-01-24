@@ -14,65 +14,9 @@
 class Collector : public play_callback_static {
 
 public:
-	//struct times { std::string time_lt; std::string time_st; };
-
-	//static times get_local_time() {
-	//	// https://learn.microsoft.com/en-us/windows/win32/api/minwinbase/ns-minwinbase-systemtime
-	//	//console::print("DEBUG: get_local_time");
-	//	time_t now_lt = time(0);
-	//	time_t now_st = time(0);
-	//	struct tm tstruct_lt;
-	//	struct tm tstruct_st;
-	//	char buf_lt[80];
-	//	char buf_st[80];
-
-	//	tstruct_lt = *localtime(&now_lt);
-	//	// Visit http://en.cppreference.com/w/cpp/chrono/c/strftime
-	//	// for more information about date/time format
-	//	strftime(buf_lt, sizeof(buf_lt), "%m-%d-%Y %H:%M:%S", &tstruct_lt);
-
-	//	tstruct_st = *gmtime(&now_st);
-	//	// Visit http://en.cppreference.com/w/cpp/chrono/c/strftime
-	//	// for more information about date/time format
-	//	strftime(buf_st, sizeof(buf_st), "%m-%d-%Y %H:%M:%S", &tstruct_st);
-
-	//	return times { buf_lt, buf_st };
-	//}
-
-	//static void write_string_to_file(const char* dir_path, const char* filename, std::string content) {
-	//	//console::print("DEBUG: write_string_to_file");
-	//	std::ofstream myfile;
-
-	//	char file_path[MAX_PATH] = "";
-
-	//	strncat_s(file_path, dir_path, sizeof(file_path));
-	//	if (file_path[sizeof(file_path) - 1] != '\\') {
-	//		strncat_s(file_path, "\\", 1);
-	//	}
-	//	strncat_s(file_path, filename, sizeof(file_path));
-
-	//	myfile.open(file_path, std::ios_base::app);
-	//	myfile << content;
-	//	myfile.close();
-	//}
-
-	//static bool is_file_empty(const char* dir_path, const char* filename)
-	//{
-	//	char file_path[MAX_PATH] = "";
-
-	//	strncat_s(file_path, dir_path, sizeof(file_path));
-	//	if (file_path[sizeof(file_path) - 1] != '\\') {
-	//		strncat_s(file_path, "\\", 1);
-	//	}
-	//	strncat_s(file_path, filename, sizeof(file_path));
-
-	//	std::ifstream myfile(file_path);
-
-	//	return myfile.peek() == std::ifstream::traits_type::eof();
-	//}
-
 	void on_new_track_update() {
 		playback_time = 0;
+		playback_state = 0;
 		//playback_control::ptr m_playback_control = playback_control::get();
 		//console::print("DEBUG: on_new_track_update");
 		if (cfg_enabled_collection) {
@@ -160,11 +104,11 @@ public:
 		sl << when_lt << "," << when_st << "," << track_info << "\n";
 		stats_line = sl.str();
 
-		if (is_file_empty(cfg_data_path.toString(), file_name)) {
-			write_string_to_file(cfg_data_path.toString(), file_name, file_header);
+		if (is_file_empty(cfg_data_path.toString(), cfg_filename.toString() + file_ext)) {
+			write_string_to_file(cfg_data_path.toString(), cfg_filename.toString() + file_ext, file_header);
 		}
 
-		write_string_to_file(cfg_data_path.toString(), file_name, stats_line);
+		write_string_to_file(cfg_data_path.toString(), cfg_filename.toString() + file_ext, stats_line);
 		//console::print("DEBUG: INFO WRITTEN!");
 	};
 
@@ -192,8 +136,8 @@ private:
 	double playback_length;
 	bool pause_state;
 	bool track_logged;
-	const char* file_name = "Soni_Collecti.csv";
 	const std::string file_header = "time_local,time_gmt,duration,artist,title,album,album_artist,genre,release_year,codec,foobar_version\n";
+	std::string file_ext = ".csv";
 	std::string when_st;
 	std::string when_lt;
 
@@ -215,7 +159,7 @@ private:
 		"%_foobar2000_version%"; // foobar version
 		//"$insert($insert($insert($insert(%artist%,$char(45),$len(%artist%)),%album%,$add($len(%artist%),1)),$char(34),$add($add($len(%artist%),$len(%album%)),3)),$char(34),0),"
 	
-	std::string ext = ".csv";
+	
 	//pfc::string8 format_info = "%length_ex%,%artist%,%title%,%album%,%album_artist%,%genre%,%date%,%codec%,%_foobar2000_version%";
 	
 };

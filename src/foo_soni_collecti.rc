@@ -57,6 +57,7 @@ END
 // Dialog
 //
 
+// for element ints: x, y, width, height
 IDD_MYPREFERENCES DIALOGEX 0, 0, 332, 288
 STYLE DS_SETFONT | WS_CHILD
 FONT 8, "Microsoft Sans Serif", 400, 0, 0x0
@@ -68,11 +69,12 @@ BEGIN
     EDITTEXT        IDC_THRESHOLD,104,88,40,12,ES_AUTOHSCROLL | ES_NUMBER
     
 // Assisted Data Input
-	PUSHBUTTON		"Browse...",IDC_DIRBROWSE, 250,120,36,13
-	RTEXT			"Statistics File Directory:",IDC_STATIC,10,110,90,8
+	PUSHBUTTON		"Browse...",IDC_DIRBROWSE,250,120,36,13
+	RTEXT			"Statistics File Directory:",IDC_STATIC,8,110,90,8
 	EDITTEXT		IDC_PATH,27,120,220,12,ES_AUTOHSCROLL
-	RTEXT			"Filename:",IDC_STATIC,8,135,50,8
+	RTEXT			"Filename:",IDC_STATIC,9,135,50,8
 	EDITTEXT		IDC_FILE,27,145,90,12
+	RTEXT			".csv",IDC_STATIC,118,149,12,8
 // Backup button
 	PUSHBUTTON		"Backup Data File",IDC_BACKUP,27,195,80,16
 END

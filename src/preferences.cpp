@@ -7,19 +7,6 @@
 #include <fstream>
 #include <sstream>
 
-// Check if directory exists, use PathFileExistsA
-//bool dirExists(LPSTR dirName_in)
-//{
-//	DWORD ftyp = GetFileAttributesA(dirName_in);
-//	if (ftyp == INVALID_FILE_ATTRIBUTES)
-//		return false;  //something is wrong with your path!
-//
-//	if (ftyp & FILE_ATTRIBUTE_DIRECTORY)
-//		return true;   // this is a directory!
-//
-//	return false;    // this is not a directory!
-//}
-
 void copyFile(std::string from, std::string towards) {
 	std::ifstream ab(from, std::ios::binary);
 	std::ofstream ad(towards, std::ios::binary);
@@ -35,10 +22,10 @@ std::string get_local_time_shvalid(bool britbong) {
 	GetLocalTime(&lt);
 
 	if (britbong) {
-		st << lt.wHour << "_" << lt.wMinute << "_" << lt.wSecond << "__" << lt.wDay << "-" << lt.wMonth << "-" << lt.wYear;
+		st << lt.wHour << "_" << lt.wMinute << "_" << lt.wSecond << "_" << lt.wDay << "-" << lt.wMonth << "-" << lt.wYear;
 	}
 	else {
-		st << lt.wHour << "_" << lt.wMinute << "_" << lt.wSecond << "__" << lt.wMonth << "-" << lt.wDay << "-" << lt.wYear;
+		st << lt.wHour << "_" << lt.wMinute << "_" << lt.wSecond << "_" << lt.wMonth << "-" << lt.wDay << "-" << lt.wYear;
 	}
 	st_string = st.str();
 
@@ -63,7 +50,7 @@ enum {
 
 // Default path of directory where the stats are saved
 LPCSTR default_data_path = "C:\\Users\\";
-LPCSTR default_filename = "Soni_Collecti";
+LPCSTR default_filename = "soni_collecti";
 
 //
 cfg_uint cfg_threshold(guid_cfg_threshold, default_cfg_threshold);

@@ -16,6 +16,7 @@ extern cfg_bool cfg_enabled_collection;
 extern cfg_bool cfg_enabled_console_logging;
 
 void write_string_to_file(std::string dir_path, std::string filename, std::string content) {
+	// Windows fstream is case-insensitive...
 	std::ofstream myfile;
 
 	std::string file_path = dir_path + filename;
@@ -29,6 +30,7 @@ void write_string_to_file(std::string dir_path, std::string filename, std::strin
 
 bool is_file_empty(std::string dir_path, std::string filename)
 {
+	// Windows fstream is case-insensitive...
 	std::string file_path = dir_path + filename;
 	if (dir_path.back() != '\\') {
 		file_path = dir_path + '\\' + filename;
