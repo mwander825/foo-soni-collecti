@@ -7,9 +7,9 @@
 #include <istream>
 #include <iostream>
 #include <fstream>
-#include "collector.h"
 #include <ctime>
 #include <time.h>
+#include "collector.h"
 
 class Collector : public play_callback_static {
 
@@ -21,7 +21,7 @@ public:
 		//console::print("DEBUG: on_new_track_update");
 		if (cfg_enabled_collection) {
 			track_logged = false;
-	
+
 			if (tifo.is_empty()) {
 				//console::print("DEBUG: TIFO IS EMPTY");
 				titleformat_compiler::get()->compile_safe_ex(tifo, format_info);
@@ -75,8 +75,6 @@ public:
 	}
 
 	void on_time_update() {
-		//double playback_time = playback_control::get()->playback_get_position();
-		//double playback_length = playback_control::get()->playback_get_length();
 		//console::print("DEBUG: on_time_update");
 		//console::print(playback_time);
 
@@ -141,12 +139,13 @@ private:
 	std::string when_st;
 	std::string when_lt;
 
-	// https://wiki.hydrogenaud.io/index.php?title=Foobar2000:Title_Formatting_Reference
 	titleformat_object::ptr tifo;
 	titleformat_object::ptr tpath;
 	
 	pfc::string8 track_info;
 	pfc::string8 track_path;
+	// https://wiki.hydrogenaud.io/index.php?title=Foobar2000:Title_Formatting_Reference
+	// foobar2000 title formatting to input quotations around fields
 	const char * format_info =
 		"%length_ex%," // extended length (hh:mm:ss.msms)
 		"$insert($insert(%artist%,$char(34),$len(%artist%)),$char(34),0)," // artist
@@ -157,11 +156,6 @@ private:
 		"%date%," // year of release
 		"%codec%," // file codec
 		"%_foobar2000_version%"; // foobar version
-		//"$insert($insert($insert($insert(%artist%,$char(45),$len(%artist%)),%album%,$add($len(%artist%),1)),$char(34),$add($add($len(%artist%),$len(%album%)),3)),$char(34),0),"
-	
-	
-	//pfc::string8 format_info = "%length_ex%,%artist%,%title%,%album%,%album_artist%,%genre%,%date%,%codec%,%_foobar2000_version%";
-	
 };
 
 static play_callback_static_factory_t<Collector> collector_g;

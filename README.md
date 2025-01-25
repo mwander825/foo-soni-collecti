@@ -9,7 +9,10 @@ Supports foobar2000 >=v2.0, x64 and x86.
 ## Usage
 When the playback time of the currently playing song reaches the chosen 
 threshold percentage (default 50%), the listening and track stats will be 
-written to the file (default *Soni_Collecti.csv*) in the chosen output directory (default C:\Users\\).
+written to the file (default *soni_collecti.csv*) in the chosen output directory (default C:\Users\\).
+
+Backups of the file can be created using the **Backup Data File** button.
+This will create a *backups* directory in the *Statistics File Directory*.
 
 ### Settings
 * Enable playback statistic logging: Turns logging on or off.
@@ -56,8 +59,9 @@ Guides and references for developing and troubleshooting components are not very
 * [Example Component Source Code](https://github.com/Chocobo1/fb2k_example)
 * [General Component Tutorial (foo_tutorial1) 0.4](https://foosion.foobar2000.org/components/?id=tutorial1&version=0.4)
  
-### SDK Reference
+### SDK Reference & foobar2000 Usage
 * [SDK Docs](https://chocobo1.github.io/fb2k_doc/SDK-2015-08-03/doxygen/index.html)
+* [Title Formatting Reference](https://wiki.hydrogenaud.io/index.php?title=Foobar2000:Title_Formatting_Reference)
 
 ### Hydrogenaudio Forums
 * [New SDK with foobar2000 v2.0 features released (2022-08-10)](https://hydrogenaud.io/index.php/topic,122761.25.html)
