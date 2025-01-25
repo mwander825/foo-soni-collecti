@@ -65,7 +65,7 @@ Guides and references for developing and troubleshooting components are not very
 
 ### Hydrogenaudio Forums
 * [New SDK with foobar2000 v2.0 features released (2022-08-10)](https://hydrogenaud.io/index.php/topic,122761.25.html)
-	* \$(VC_LibraryPath_x64);\$(WindowsSDK_LibraryPath_x64); to solve unresolved externals for x64 
+	* <span>$</span>(VC_LibraryPath_x64);<span>$</span>(WindowsSDK_LibraryPath_x64); to solve unresolved externals for x64 
 * [Next track and recurring callbacks](https://hydrogenaud.io/index.php/topic,65973.0.html)
 * [Updated foobar2000 development documentation](https://hydrogenaud.io/index.php/topic,122602.0.html)
 * [on_playback_pause not triggering at all](https://hydrogenaud.io/index.php/topic,124217.0.html)
